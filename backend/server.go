@@ -17,18 +17,18 @@ const defaultPort = "8080"
 
 func main() {
 	port := getEnv("PORT", defaultPort)
-	assetRepo := neo4j.AssetRepo{
+	db := neo4j.Database{
 		Uri:      getEnv("NEO4J_URI", ""),
 		Username: getEnv("NEO4J_USERNAME", ""),
 		Password: getEnv("NEO4J_PASSWORD", ""),
 	}
 
-	if err := assetRepo.Initialise(); err != nil {
+	if err := db.Initialise(); err != nil {
 		panic(err)
 	}
 	log.Println("Database connection successful")
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{Database: db}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

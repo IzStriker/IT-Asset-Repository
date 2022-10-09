@@ -49,10 +49,11 @@ func (r *mutationResolver) UpsertAssetTypeAttribute(ctx context.Context, input m
 
 // AssetTypes is the resolver for the assetTypes field.
 func (r *queryResolver) AssetTypes(ctx context.Context) ([]*model.AssetType, error) {
-	var types []*model.AssetType
 
-	for _, v := range r.Resolver.AssetTypeStore {
-		types = append(types, &v)
+	types, err := r.Resolver.Database.Repository.AssetType.List()
+
+	if err != nil {
+		return nil, err
 	}
 
 	return types, nil

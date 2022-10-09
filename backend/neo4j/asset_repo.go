@@ -4,14 +4,18 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
-type AssetRepo struct {
-	Uri      string
-	Username string
-	Password string
-	driver   neo4j.Driver
+type repository struct {
+	AssetType assetType
 }
 
-func (db *AssetRepo) Initialise() error {
+type Database struct {
+	Uri        string
+	Username   string
+	Password   string
+	Repository repository
+}
+
+func (db *Database) Initialise() error {
 	driver, err := neo4j.NewDriver(db.Uri, neo4j.BasicAuth(db.Username, db.Password, ""))
 	if err != nil {
 		return err
@@ -21,6 +25,6 @@ func (db *AssetRepo) Initialise() error {
 		return err
 	}
 
-	db.driver = driver
+	db.Repository.AssetType.driver = driver
 	return nil
 }
