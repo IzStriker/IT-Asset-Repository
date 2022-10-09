@@ -21,17 +21,6 @@ type AssetTypeAttribute struct {
 	Type *Type  `json:"type"`
 }
 
-type AssetTypeAttributeInput struct {
-	Name        string `json:"name"`
-	Type        *Type  `json:"type"`
-	AssetTypeID string `json:"AssetTypeId"`
-}
-
-type AssetTypeInput struct {
-	Name    string  `json:"name"`
-	Extends *string `json:"extends"`
-}
-
 type Type string
 
 const (

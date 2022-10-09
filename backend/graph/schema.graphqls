@@ -19,21 +19,4 @@ type AssetTypeAttribute {
 type Query {
   assetType(id: ID!): AssetType!
   assetTypes: [AssetType!]!
-  assetTypeAttributes: [AssetTypeAttribute!]!
-}
-
-input AssetTypeInput {
-  name: String!
-  extends: String
-}
-
-input AssetTypeAttributeInput {
-  name: String!
-  type: Type
-  AssetTypeId: String!
-}
-
-type Mutation {
-  upsertAssetType(input: AssetTypeInput!): AssetType!
-  upsertAssetTypeAttribute(input: AssetTypeAttributeInput!): AssetTypeAttribute
 }
