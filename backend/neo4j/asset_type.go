@@ -5,6 +5,7 @@ import (
 
 	"github.com/IzStriker/IT-Asset-Repository/backend/graph/model"
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j/dbtype"
 )
 
 type assetType struct {
@@ -17,9 +18,15 @@ func (a assetType) List() ([]*model.AssetType, error) {
 
 	types, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		var assetTypes []*model.AssetType
-		query := `MATCH (t:AssetType)
-		OPTIONAL MATCH (t:AssetType)-[:EXTENDS]->(p:AssetType)
-		RETURN id(t) as id, t.name as name, id(p) as extendsId;`
+		query := `
+		// Get all types current and parent type extends, including it's self
+		MATCH(type:AssetType)
+		WITH [(type)-[:EXTENDS*0..]->(parent:AssetType) | parent] as types, type as baseType
+		// For each type in types array, get attributes types that given type owns
+		UNWIND types as type
+		MATCH(type)-[:OWNS]->(a:AssetAttributeType)
+		OPTIONAL MATCH (baseType)-[:EXTENDS]->(parent)
+		return baseType.name as name, id(baseType) as id, id(parent) as extendsId, collect(a) as attributes`
 
 		result, err := tx.Run(query, nil)
 		if err != nil {
@@ -40,6 +47,29 @@ func (a assetType) List() ([]*model.AssetType, error) {
 			if extendsId, ok := record.Get("extendsId"); ok && extendsId != nil {
 				stringExtendsId := strconv.Itoa(int(extendsId.(int64)))
 				assetType.ExtendsID = &stringExtendsId
+			}
+
+			if attributes, ok := record.Get("attributes"); ok && attributes != nil {
+				var attributeTypes []*model.AssetTypeAttribute
+				attribute := attributes.([]interface{})
+				for _, value := range attribute {
+					node := value.(dbtype.Node)
+					var attType model.Type
+
+					for _, customType := range model.AllType {
+						if string(customType) == node.Props["type"] {
+							attType = customType
+							break
+						}
+					}
+
+					attributeTypes = append(attributeTypes, &model.AssetTypeAttribute{
+						ID:   strconv.Itoa(int(node.Id)),
+						Name: node.Props["name"].(string),
+						Type: &attType,
+					})
+				}
+				assetType.Attributes = attributeTypes
 			}
 
 			if err := result.Err(); err != nil {
