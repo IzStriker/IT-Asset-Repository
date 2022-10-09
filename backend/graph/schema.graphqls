@@ -6,7 +6,7 @@ enum Type {
 type AssetType {
   id: ID!
   name: String!
-  extends: AssetType
+  extendsId: String
   attributes: [AssetTypeAttribute!]!
 }
 

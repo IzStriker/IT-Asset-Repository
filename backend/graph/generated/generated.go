@@ -46,7 +46,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	AssetType struct {
 		Attributes func(childComplexity int) int
-		Extends    func(childComplexity int) int
+		ExtendsID  func(childComplexity int) int
 		ID         func(childComplexity int) int
 		Name       func(childComplexity int) int
 	}
@@ -99,12 +99,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AssetType.Attributes(childComplexity), true
 
-	case "AssetType.extends":
-		if e.complexity.AssetType.Extends == nil {
+	case "AssetType.extendsId":
+		if e.complexity.AssetType.ExtendsID == nil {
 			break
 		}
 
-		return e.complexity.AssetType.Extends(childComplexity), true
+		return e.complexity.AssetType.ExtendsID(childComplexity), true
 
 	case "AssetType.id":
 		if e.complexity.AssetType.ID == nil {
@@ -257,7 +257,7 @@ var sources = []*ast.Source{
 type AssetType {
   id: ID!
   name: String!
-  extends: AssetType
+  extendsId: String
   attributes: [AssetTypeAttribute!]!
 }
 
@@ -466,8 +466,8 @@ func (ec *executionContext) fieldContext_AssetType_name(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _AssetType_extends(ctx context.Context, field graphql.CollectedField, obj *model.AssetType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AssetType_extends(ctx, field)
+func (ec *executionContext) _AssetType_extendsId(ctx context.Context, field graphql.CollectedField, obj *model.AssetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AssetType_extendsId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -480,7 +480,7 @@ func (ec *executionContext) _AssetType_extends(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Extends, nil
+		return obj.ExtendsID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -489,29 +489,19 @@ func (ec *executionContext) _AssetType_extends(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.AssetType)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOAssetType2ᚖgithubᚗcomᚋIzStrikerᚋITᚑAssetᚑRepositoryᚋbackendᚋgraphᚋmodelᚐAssetType(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_AssetType_extends(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AssetType_extendsId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AssetType",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_AssetType_id(ctx, field)
-			case "name":
-				return ec.fieldContext_AssetType_name(ctx, field)
-			case "extends":
-				return ec.fieldContext_AssetType_extends(ctx, field)
-			case "attributes":
-				return ec.fieldContext_AssetType_attributes(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AssetType", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -741,8 +731,8 @@ func (ec *executionContext) fieldContext_Mutation_upsertAssetType(ctx context.Co
 				return ec.fieldContext_AssetType_id(ctx, field)
 			case "name":
 				return ec.fieldContext_AssetType_name(ctx, field)
-			case "extends":
-				return ec.fieldContext_AssetType_extends(ctx, field)
+			case "extendsId":
+				return ec.fieldContext_AssetType_extendsId(ctx, field)
 			case "attributes":
 				return ec.fieldContext_AssetType_attributes(ctx, field)
 			}
@@ -866,8 +856,8 @@ func (ec *executionContext) fieldContext_Query_assetTypes(ctx context.Context, f
 				return ec.fieldContext_AssetType_id(ctx, field)
 			case "name":
 				return ec.fieldContext_AssetType_name(ctx, field)
-			case "extends":
-				return ec.fieldContext_AssetType_extends(ctx, field)
+			case "extendsId":
+				return ec.fieldContext_AssetType_extendsId(ctx, field)
 			case "attributes":
 				return ec.fieldContext_AssetType_attributes(ctx, field)
 			}
@@ -2943,9 +2933,9 @@ func (ec *executionContext) _AssetType(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "extends":
+		case "extendsId":
 
-			out.Values[i] = ec._AssetType_extends(ctx, field, obj)
+			out.Values[i] = ec._AssetType_extendsId(ctx, field, obj)
 
 		case "attributes":
 
@@ -3873,13 +3863,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalOAssetType2ᚖgithubᚗcomᚋIzStrikerᚋITᚑAssetᚑRepositoryᚋbackendᚋgraphᚋmodelᚐAssetType(ctx context.Context, sel ast.SelectionSet, v *model.AssetType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._AssetType(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAssetTypeAttribute2ᚖgithubᚗcomᚋIzStrikerᚋITᚑAssetᚑRepositoryᚋbackendᚋgraphᚋmodelᚐAssetTypeAttribute(ctx context.Context, sel ast.SelectionSet, v *model.AssetTypeAttribute) graphql.Marshaler {

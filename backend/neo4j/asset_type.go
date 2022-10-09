@@ -19,7 +19,7 @@ func (a assetType) List() ([]*model.AssetType, error) {
 		var assetTypes []*model.AssetType
 		query := `MATCH (t:AssetType)
 		OPTIONAL MATCH (t:AssetType)-[:EXTENDS]->(p:AssetType)
-		RETURN id(t) as id, t.name as name, id(p) as extends;`
+		RETURN id(t) as id, t.name as name, id(p) as extendsId;`
 
 		result, err := tx.Run(query, nil)
 		if err != nil {
@@ -37,9 +37,9 @@ func (a assetType) List() ([]*model.AssetType, error) {
 			name, _ := record.Get("name")
 			assetType := model.AssetType{ID: stringId, Name: name.(string)}
 
-			if id, ok := record.Get("extendsId"); ok && id != nil {
-				extendsName, _ := record.Get("extendsId")
-				assetType.Extends = &model.AssetType{ID: id.(string), Name: extendsName.(string)}
+			if extendsId, ok := record.Get("extendsId"); ok && extendsId != nil {
+				stringExtendsId := strconv.Itoa(int(extendsId.(int64)))
+				assetType.ExtendsID = &stringExtendsId
 			}
 
 			if err := result.Err(); err != nil {

@@ -8,7 +8,6 @@ import (
 
 	"github.com/IzStriker/IT-Asset-Repository/backend/graph/generated"
 	"github.com/IzStriker/IT-Asset-Repository/backend/graph/model"
-
 	"github.com/google/uuid"
 )
 
@@ -49,7 +48,6 @@ func (r *mutationResolver) UpsertAssetTypeAttribute(ctx context.Context, input m
 
 // AssetTypes is the resolver for the assetTypes field.
 func (r *queryResolver) AssetTypes(ctx context.Context) ([]*model.AssetType, error) {
-
 	types, err := r.Resolver.Database.Repository.AssetType.List()
 
 	if err != nil {

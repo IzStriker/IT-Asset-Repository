@@ -11,7 +11,7 @@ import (
 type AssetType struct {
 	ID         string                `json:"id"`
 	Name       string                `json:"name"`
-	Extends    *AssetType            `json:"extends"`
+	ExtendsID  *string               `json:"extendsId"`
 	Attributes []*AssetTypeAttribute `json:"attributes"`
 }
 
