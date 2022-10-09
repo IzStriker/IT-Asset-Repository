@@ -55,3 +55,41 @@ func (a assetType) List() ([]*model.AssetType, error) {
 	}
 	return types.([]*model.AssetType), nil
 }
+
+func (a assetType) Get(id string) (*model.AssetType, error) {
+	session := a.driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	defer session.Close()
+
+	assetType, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
+		var assetType *model.AssetType
+		query := `MATCH(t:AssetType)
+		WHERE id(t) = $id
+		OPTIONAL MATCH (t:AssetType)-[:EXTENDS]->(p:AssetType)
+		RETURN t.name as name, id(p) as extendsId`
+
+		intId, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		result, err := tx.Run(query, map[string]interface{}{"id": intId})
+		if err != nil {
+			return nil, err
+		}
+
+		if result.Next() {
+			record := result.Record()
+			name, _ := record.Get("name")
+			extendsId, _ := record.Get("extendsId")
+			stringId := strconv.Itoa(int(extendsId.(int64)))
+
+			assetType = &model.AssetType{ID: id, Name: name.(string), ExtendsID: &stringId}
+		}
+		return assetType, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return assetType.(*model.AssetType), nil
+}

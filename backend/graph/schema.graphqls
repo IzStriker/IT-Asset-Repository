@@ -17,6 +17,7 @@ type AssetTypeAttribute {
 }
 
 type Query {
+  assetType(id: ID!): AssetType!
   assetTypes: [AssetType!]!
   assetTypeAttributes: [AssetTypeAttribute!]!
 }

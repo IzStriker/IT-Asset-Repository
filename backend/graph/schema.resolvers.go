@@ -46,6 +46,17 @@ func (r *mutationResolver) UpsertAssetTypeAttribute(ctx context.Context, input m
 	return &assetTypeAttribute, nil
 }
 
+// AssetType is the resolver for the assetType field.
+func (r *queryResolver) AssetType(ctx context.Context, id string) (*model.AssetType, error) {
+	assetType, err := r.Resolver.Database.Repository.AssetType.Get(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return assetType, nil
+}
+
 // AssetTypes is the resolver for the assetTypes field.
 func (r *queryResolver) AssetTypes(ctx context.Context) ([]*model.AssetType, error) {
 	types, err := r.Resolver.Database.Repository.AssetType.List()
