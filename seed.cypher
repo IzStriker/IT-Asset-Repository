@@ -1,9 +1,9 @@
 // Document
-CREATE(document:ASSETTYPE{name:"Document"})
-CREATE(extension:ATTRIBUTE{name:"Extension"})
-CREATE(size:ATTRIBUTE{name:"Size"})
-CREATE(filename:ATTRIBUTE{name:"Filename"})
-CREATE(location:ATTRIBUTE{name:"Location"})
+CREATE(document:AssetType{name:"Document"})
+CREATE(extension:AssetAttributeType{name:"Extension"})
+CREATE(size:AssetAttributeType{name:"Size"})
+CREATE(filename:AssetAttributeType{name:"Filename"})
+CREATE(location:AssetAttributeType{name:"Location"})
 CREATE 
     (document)-[:OWNS]->(extension),
     (document)-[:OWNS]->(size),
@@ -11,24 +11,24 @@ CREATE
     (document)-[:OWNS]->(location)
 
 // Code Document 
-CREATE(codeDocument:ASSETTYPE{name:"Code Document"})
-CREATE(loc:ATTRIBUTE{name:"Line of Code"})
-CREATE(language:ATTRIBUTE{name:"Programming Language"})
+CREATE(codeDocument:AssetType{name:"Code Document"})
+CREATE(loc:AssetAttributeType{name:"Line of Code"})
+CREATE(language:AssetAttributeType{name:"Programming Language"})
 CREATE
     (codeDocument)-[:EXTENDS]->(document),
     (codeDocument)-[:OWNS]->(loc),
-    (codeDocument)-[:language]->(language)
+    (codeDocument)-[:OWNS]->(language)
 
 // Configuration Document 
-CREATE(configDocument:ASSETTYPE{name:"Config Document"})
-CREATE(type:ATTRIBUTE{name:"Type"})
+CREATE(configDocument:AssetType{name:"Config Document"})
+CREATE(type:AssetAttributeType{name:"Type"})
 CREATE
     (configDocument)-[:EXTENDS]->(document),
     (configDocument)-[:OWNS]->(type)
 
 // Java Class
-CREATE(class:ASSETTYPE{name:"Java Class"})
-CREATE(className:ATTRIBUTE{name:"Class Name"})
+CREATE(class:AssetType{name:"Java Class"})
+CREATE(className:AssetAttributeType{name:"Class Name"})
 CREATE 
     (class)-[:EXTENDS]->(codeDocument),
     (class)-[:OWNS]->(className)
