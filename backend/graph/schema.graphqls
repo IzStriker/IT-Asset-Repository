@@ -1,0 +1,38 @@
+enum Type {
+  STRING
+  NUMBER
+}
+
+type AssetType {
+  id: ID!
+  name: String!
+  extends: AssetType
+  attributes: [AssetTypeAttribute!]!
+}
+
+type AssetTypeAttribute {
+  id: ID!
+  name: String!
+  type: Type
+}
+
+type Query {
+  assetTypes: [AssetType!]!
+  assetTypeAttributes: [AssetTypeAttribute!]!
+}
+
+input AssetTypeInput {
+  name: String!
+  extends: String
+}
+
+input AssetTypeAttributeInput {
+  name: String!
+  type: Type
+  AssetTypeId: String!
+}
+
+type Mutation {
+  upsertAssetType(input: AssetTypeInput!): AssetType!
+  upsertAssetTypeAttribute(input: AssetTypeAttributeInput!): AssetTypeAttribute
+}
