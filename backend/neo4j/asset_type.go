@@ -92,10 +92,16 @@ func (a assetType) Get(id string) (*model.AssetType, error) {
 
 	assetType, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
 		var assetType *model.AssetType
-		query := `MATCH(t:AssetType)
-		WHERE id(t) = $id
-		OPTIONAL MATCH (t:AssetType)-[:EXTENDS]->(p:AssetType)
-		RETURN t.name as name, id(p) as extendsId`
+		query := `
+		// Get all types current and parent type extends, including it's self
+		MATCH(type:AssetType)
+		WHERE id(type) = $id
+		WITH [(type)-[:EXTENDS*0..]->(parent:AssetType) | parent] as types, type as baseType
+		// For each type in types array, get attributes types that given type owns
+		UNWIND types as type
+		MATCH(type)-[:OWNS]->(a:AssetAttributeType)
+		OPTIONAL MATCH (baseType)-[:EXTENDS]->(parent)
+		return baseType.name as name, id(baseType) as id, id(parent) as extendsId, collect(a) as attributes`
 
 		intId, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
@@ -108,12 +114,37 @@ func (a assetType) Get(id string) (*model.AssetType, error) {
 		}
 
 		if result.Next() {
+			var stringId string
 			record := result.Record()
 			name, _ := record.Get("name")
-			extendsId, _ := record.Get("extendsId")
-			stringId := strconv.Itoa(int(extendsId.(int64)))
-
+			if extendsId, ok := record.Get("extendsId"); ok && extendsId != nil {
+				stringId = strconv.Itoa(int(extendsId.(int64)))
+			}
 			assetType = &model.AssetType{ID: id, Name: name.(string), ExtendsID: &stringId}
+
+			if attributes, ok := record.Get("attributes"); ok && attributes != nil {
+				var attributeTypes []*model.AssetTypeAttribute
+				attribute := attributes.([]interface{})
+				for _, value := range attribute {
+					node := value.(dbtype.Node)
+					var attType model.Type
+
+					for _, customType := range model.AllType {
+						if string(customType) == node.Props["type"] {
+							attType = customType
+							break
+						}
+					}
+
+					attributeTypes = append(attributeTypes, &model.AssetTypeAttribute{
+						ID:   strconv.Itoa(int(node.Id)),
+						Name: node.Props["name"].(string),
+						Type: &attType,
+					})
+				}
+				assetType.Attributes = attributeTypes
+			}
+
 		}
 		return assetType, nil
 	})
